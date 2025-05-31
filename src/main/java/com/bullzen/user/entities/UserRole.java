@@ -1,15 +1,14 @@
 package com.bullzen.user.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "roles")
+@Getter
+@Setter
 public class UserRole {
 
     @Id
@@ -17,5 +16,6 @@ public class UserRole {
     @Column(name = "role_id")
     private Long roleId;
 
+    @Column(nullable = false, unique = true)
     private String name;
 }

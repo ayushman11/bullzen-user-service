@@ -3,20 +3,18 @@ package com.bullzen.user.entities;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @Table(name = "tokens")
+@Getter
+@Setter
 public class RefreshToken {
 
     @Id
