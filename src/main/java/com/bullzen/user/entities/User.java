@@ -1,10 +1,8 @@
 package com.bullzen.user.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,10 +17,13 @@ public class User {
 
     @Id
     @Column(name = "user_id")
-    private String userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
 
+    @NotBlank(message = "username is mandatory")
     private String username;
 
+    @NotBlank(message = "password is mandatory")
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
