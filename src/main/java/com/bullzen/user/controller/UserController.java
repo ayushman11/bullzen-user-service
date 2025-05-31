@@ -1,12 +1,12 @@
 package com.bullzen.user.controller;
 
 import com.bullzen.user.dto.ApiResponse;
+import com.bullzen.user.dto.UserDto;
 import com.bullzen.user.entities.User;
 import com.bullzen.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +20,10 @@ public class UserController {
     UserService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<User>> createUser(@Valid @RequestBody User user) {
-        userService.saveUser(user);
+    public ResponseEntity<ApiResponse<Object>> createUser(@Valid @RequestBody UserDto userDto) {
+        userService.saveUser(userService.convertToEntity(userDto));
 
-        ApiResponse<User> response = new ApiResponse<>(
+        ApiResponse<Object> response = new ApiResponse<>(
                 HttpStatus.CREATED.value(),
                 "User created successfully",
                 null

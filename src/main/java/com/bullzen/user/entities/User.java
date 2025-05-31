@@ -8,11 +8,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
+@Getter
+@Setter
 public class User {
 
     @Id
@@ -21,6 +22,7 @@ public class User {
     private Long userId;
 
     @NotBlank(message = "username is mandatory")
+    @Column(unique = true, nullable = false)
     private String username;
 
     @NotBlank(message = "password is mandatory")
