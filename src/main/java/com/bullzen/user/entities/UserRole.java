@@ -9,6 +9,7 @@ import lombok.*;
 @Table(name = "roles")
 @Getter
 @Setter
+@Builder
 public class UserRole {
 
     @Id

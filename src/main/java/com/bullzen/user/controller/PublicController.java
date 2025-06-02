@@ -8,15 +8,20 @@ import com.bullzen.user.entities.User;
 import com.bullzen.user.entities.UserRole;
 import com.bullzen.user.repository.UserRepository;
 import com.bullzen.user.repository.UserRoleRepository;
+import com.bullzen.user.service.UserDetailsServiceImpl;
 import com.bullzen.user.service.UserService;
+import com.bullzen.user.utils.JwtUtil;
+import io.jsonwebtoken.JwtBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,10 +41,16 @@ public class PublicController {
     UserRoleRepository userRoleRepository;
 
     @Autowired
+    UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
     AuthenticationManager authenticationManager;
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    JwtUtil jwtUtil;
 
     @GetMapping("/health-check")
     public ResponseEntity<ApiResponse<Object>> healthCheck() {
@@ -57,9 +68,11 @@ public class PublicController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getUsernameOrEmail(), loginDto.getPassword()
         ));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(loginDto.getUsernameOrEmail());
+        String jwt = jwtUtil.generateToken(userDetails.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "user signed-in successfully!", null), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "user signed-in successfully!", jwt), HttpStatus.OK);
     }
 
     @PostMapping("/signup")

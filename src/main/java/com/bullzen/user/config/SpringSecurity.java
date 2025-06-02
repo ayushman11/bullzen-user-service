@@ -1,5 +1,6 @@
 package com.bullzen.user.config;
 
+import com.bullzen.user.JwtAuthenticationFilter;
 import com.bullzen.user.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +24,9 @@ public class SpringSecurity {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
+    @Autowired
+    JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -29,10 +34,12 @@ public class SpringSecurity {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/public/**").permitAll()
+                        .requestMatchers( "/public/**").permitAll()
+                        .requestMatchers("/users/all-users").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
-                .httpBasic(httpBasic -> {});
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
