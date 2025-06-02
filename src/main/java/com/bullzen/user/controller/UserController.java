@@ -19,18 +19,6 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Object>> createUser(@Valid @RequestBody UserDto userDto) {
-        userService.saveUser(userService.convertToEntity(userDto));
-
-        ApiResponse<Object> response = new ApiResponse<>(
-                HttpStatus.CREATED.value(),
-                "User created successfully",
-                null
-        );
-        return ResponseEntity.ok(response);
-    }
-
     @GetMapping
     public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
         List<User> usersList = userService.getAllUsers();

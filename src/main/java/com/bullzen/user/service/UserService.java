@@ -20,12 +20,6 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    UserRoleRepository userRoleRepository;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
     public void saveUser(User user) {
         userRepository.save(user);
     }
@@ -44,20 +38,6 @@ public class UserService {
 
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
-    }
-
-    public User convertToEntity(UserDto dto) {
-        User user = new User();
-        user.setUsername(dto.getUsername());
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
-
-        Set<UserRole> roleEntities = dto.getRoles().stream()
-                .map(roleName -> userRoleRepository.findByName(roleName.toUpperCase())
-                        .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
-                .collect(Collectors.toSet());
-
-        user.setRoles(roleEntities);
-        return user;
     }
 
 }
