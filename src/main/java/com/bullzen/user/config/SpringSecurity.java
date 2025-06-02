@@ -1,6 +1,6 @@
 package com.bullzen.user.config;
 
-import com.bullzen.user.JwtAuthenticationFilter;
+import com.bullzen.user.filter.JwtAuthenticationFilter;
 import com.bullzen.user.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
