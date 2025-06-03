@@ -1,6 +1,7 @@
 package com.bullzen.user.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -14,6 +15,7 @@ import java.util.Set;
 @Table(name = "users")
 @Getter
 @Setter
+@Builder
 public class User {
 
     @Id
@@ -21,12 +23,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @NotBlank(message = "username is mandatory")
     @Column(unique = true, nullable = false)
     private String username;
 
-    @NotBlank(message = "password is mandatory")
+    @Column(unique = true, nullable = false)
+    private String email;
+
     private String password;
+
+    private String name;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -34,5 +39,5 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<UserRole> roles = new HashSet<>();
+    private Set<UserRole> roles;
 }
