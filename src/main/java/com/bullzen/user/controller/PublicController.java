@@ -1,20 +1,15 @@
 package com.bullzen.user.controller;
 
-import com.bullzen.user.dto.ApiResponse;
-import com.bullzen.user.dto.LoginDto;
-import com.bullzen.user.dto.SignUpDto;
-import com.bullzen.user.dto.UserDto;
+import com.bullzen.user.dto.*;
 import com.bullzen.user.entities.User;
 import com.bullzen.user.entities.UserRole;
 import com.bullzen.user.repository.UserRepository;
 import com.bullzen.user.repository.UserRoleRepository;
+import com.bullzen.user.service.KafkaProducerService;
 import com.bullzen.user.service.UserDetailsServiceImpl;
-import com.bullzen.user.service.UserService;
 import com.bullzen.user.utils.JwtUtil;
-import io.jsonwebtoken.JwtBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,9 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -51,6 +44,9 @@ public class PublicController {
 
     @Autowired
     JwtUtil jwtUtil;
+
+    @Autowired
+    KafkaProducerService kafkaProducerService;
 
     @GetMapping("/health-check")
     public ResponseEntity<ApiResponse<Object>> healthCheck() {
@@ -85,14 +81,16 @@ public class PublicController {
             return new ResponseEntity<>(new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), "Email ID already exists", null), HttpStatus.BAD_REQUEST);
         }
         Optional<UserRole> role = userRoleRepository.findByName("ROLE_TRADER");
-        userRepository.save(User
+
+        User newUser = User
                 .builder()
                 .username(signUpDto.getUsername())
                 .email(signUpDto.getEmail())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
                 .roles(role.map(Collections::singleton).orElse(Collections.emptySet()))
-                .build()
-        );
+                .build();
+        userRepository.save(newUser);
+        kafkaProducerService.sendMessage(new UserCreatedDto(newUser));
 
         ApiResponse<Object> response = new ApiResponse<>(
                 HttpStatus.CREATED.value(),
