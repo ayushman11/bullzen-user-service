@@ -46,32 +46,30 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
-        Optional<User> user = userService.getUserByUsername(username);
+        User user = userService.getUserByUsername(username);
 
         ApiResponse<User> response = new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "User fetched successfully",
-                user.get()
+                user
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/{usernameOrEmail}/roles")
     public ResponseEntity<ApiResponse<User>> addUserRolesToUser(@PathVariable String usernameOrEmail, @RequestBody List<String> userRoles) {
-        Optional<User> user = userService.getByUsernameOrEmail(usernameOrEmail);
-        if(user.isEmpty()) {
-            return new ResponseEntity<>(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "username/email not found", null), HttpStatus.NOT_FOUND);
-        }
-        Set<UserRole> currentRoles = user.get().getRoles();
+        User user = userService.getByUsernameOrEmail(usernameOrEmail);
+
+        Set<UserRole> currentRoles = user.getRoles();
         Set<UserRole> newRoles = userRoles.stream()
                 .map(roleName -> userRoleRepository.findByName(roleName)
                         .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
                 .collect(Collectors.toSet());
         currentRoles.addAll(newRoles);
-        user.get().setRoles(currentRoles);
+        user.setRoles(currentRoles);
 
-        userService.saveUser(user.get());
+        userService.saveUser(user);
 
-        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "roles updated successfully", user.get()), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "roles updated successfully", user), HttpStatus.OK);
     }
 }
